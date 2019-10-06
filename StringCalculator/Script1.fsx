@@ -1,4 +1,6 @@
-﻿let decompose (str:string) = 
+﻿open System
+
+let decompose (str:string) = 
     match str with
     | str when str.StartsWith("//") ->
             let delim = str.[2]
@@ -10,7 +12,11 @@ let add str =
     | "" -> 0
     | str -> 
             let delim, numbers = decompose str
-            numbers.Split(delim) |> Array.map int |> Array.sum
+            let negatives, positives = numbers.Split(delim) |> Array.map int |> Array.partition (fun n -> n < 0)
+            if negatives.Length > 0 then 
+                invalidArg "str" (sprintf "negative numbers are not allowed %s" <| String.Join(",", negatives))
+            else
+            positives  |> Array.sum
 
 //The method can take 0, 1 or 2 numbers, and will return their sum (for an empty string it will return 0) for example “” or “1” or “1,2”
 let r1 = add "" = 0
