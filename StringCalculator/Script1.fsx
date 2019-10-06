@@ -2,6 +2,10 @@
 
 let decompose (str:string) = 
     match str with
+    | str when str.Contains("][") ->  
+            let delim1 =  str.[3..str.IndexOf("]") - 1]
+            let delim2 = str.[(str.IndexOf("][")+2)..str.LastIndexOf("]") - 1]
+            ([| delim1;delim2 |], str.[str.IndexOf("\n")..])
     | str when str.StartsWith("//[") ->
              let delim = str.[3..str.IndexOf("]") - 1]
              ([| delim |], str.[str.IndexOf("\n")..])
@@ -13,6 +17,7 @@ let decompose (str:string) =
 let add str = 
     match str with
     | "" -> 0
+    
     | str -> 
             let delim, numbers = decompose str
             let negatives, positives = numbers.Split(delim, StringSplitOptions.RemoveEmptyEntries) |> Array.map int |> Array.partition (fun n -> n < 0)
@@ -33,8 +38,10 @@ let r6 = add "//-\n1-2" = 3
 let r7 = add "//;\n1;2;3" =6
 //Calling Add with a negative number will throw an exception “negatives not allowed” - and the negative that was passed
 //if there are multiple negatives, show all of them in the exception message
-let r8 = add "1,-2,-3" = 1
+//let r8 = add "1,-2,-3" = 1
 //Numbers bigger than 1000 should be ignored, so adding 2 + 1001  = 2
 let r9 = add "2,1001" = 2
 //Delimiters can be of any length with the following format:  “//[delimiter]\n” for example: “//[***]\n1***2***3” should return 6
-let r10 = add "//[***]\n1***2***3" = 6
+let r10 = add "//[****]\n1****2****3" = 6
+//Allow multiple delimiters like this:  “//[delim1][delim2]\n” for example “//[*][%]\n1*2%3” should return 6. 
+let r11 = add "//[***][%%]\n1***2%%3" = 6
